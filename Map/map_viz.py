@@ -12,7 +12,7 @@ mlmap_viz = MicroLaneletGraphViz(lmap.lanelets, graph)
 pub_lmap_viz = rospy.Publisher('/lmap', MarkerArray, queue_size=1)
 pub_mlmap_viz = rospy.Publisher('/mlmap', MarkerArray, queue_size=1)
 
-rate = rospy.Rate(0.02)
+rate = rospy.Rate(1)
 while not rospy.is_shutdown():
     pub_lmap_viz.publish(lmap_viz)
     pub_mlmap_viz.publish(mlmap_viz)

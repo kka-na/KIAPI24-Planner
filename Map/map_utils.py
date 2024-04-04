@@ -90,7 +90,7 @@ def MicroLaneletGraphViz(lanelet, graph):
                     to_idx = sum(lanelet[target_id]['cut_idx'][cut_n]) // 2
                     pts = [from_pts[from_idx], to_pts[to_idx]]
 
-                marker1, marker2 = Edge(n*100000+m, pts, (0.0, 1.0, 0.0, 0.5))
+                marker1, marker2 = Edge(n*100000+m, pts, (0.0, 1.0, 0.0, 0.3))
                 array.markers.append(marker1)
                 array.markers.append(marker2)
 
@@ -110,7 +110,7 @@ def Bound(ns, id_, n, points, type_, color):
     return marker
 
 def Node(id_, n, pt, color):
-    marker = Text('graph_id', n, 2.5, color, id_)
+    marker = Text('graph_id', n, 1.5, color, id_)
     marker.pose.position = Point(x=pt[0], y=pt[1], z=1.0)
     return marker
 
@@ -123,11 +123,11 @@ def Edge(n, points, color):
             pts.append(itp.calc_position(ds))
         points = pts
 
-    marker1 = Line('edge_line', n, 0.5, color, 0)
+    marker1 = Line('edge_line', n, 0.2, color, 0)
     for pt in points:
         marker1.points.append(Point(x=pt[0], y=pt[1], z=0.0))
 
-    marker2 = Arrow('edge_arrow', n, (1.0, 2.0, 4.0), color)
+    marker2 = Arrow('edge_arrow', n, (0.3, 0.8, 1.0), color)
     num = len(points)
     if num > 2:
         marker2.points.append(
@@ -162,7 +162,6 @@ def Line(ns, id_, scale, color, len):
     marker.header.frame_id = 'world'
     marker.ns = ns
     marker.id = id_
-    marker.text = str(len)
     marker.lifetime = rospy.Duration(0)
     marker.scale.x = scale
     marker.color.r = color[0]

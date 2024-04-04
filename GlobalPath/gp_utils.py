@@ -1,6 +1,5 @@
 import numpy as np
 import copy
-import math
 import rospy
 from scipy.ndimage import gaussian_filter1d
 
@@ -10,7 +9,8 @@ from quadratic_spline_interpolate import QuadraticSplineInterpolate
 
 lanelets = None
 tiles = None
-tile_size = None 
+tile_size = None
+cut_dist = None 
 M_TO_IDX = 1/0.5
 IDX_TO_M = 0.5
 
@@ -52,7 +52,7 @@ def lanelet_matching(t_pt):
     else:
         return None
 
-def get_straight_path(idnidx, path_len, stop_id):
+def get_straight_path(idnidx, path_len, stop_id, prior='Left'):
     s_n = idnidx[0]
     s_i = idnidx[1]
     wps = copy.deepcopy(lanelets[s_n]['waypoints'])
@@ -61,10 +61,13 @@ def get_straight_path(idnidx, path_len, stop_id):
     u_n = s_n
     u_i = s_i+int(path_len*M_TO_IDX)
     e_i = u_i
+    
+    path_ids = []
 
     while u_i >= lls_len:
-        _u_n = get_possible_successor(u_n, prior='Left')
+        _u_n = get_possible_successor(u_n, prior)
         if _u_n == stop_id:
+            u_i = lls_len-1
             break
         if _u_n == None:
             e_i = len(wps)
@@ -74,23 +77,25 @@ def get_straight_path(idnidx, path_len, stop_id):
         e_i += u_i
         u_wp = lanelets[u_n]['waypoints']
         lls_len = len(u_wp)
+        for i in range(lls_len):
+            if i % int(cut_dist*M_TO_IDX) == 0:
+                micro_id = i //int(cut_dist*M_TO_IDX)
+                path_ids.append(f"{u_n}_{micro_id}")
         wps += u_wp
     r = wps[s_i:e_i]
-    return r, [u_n, u_i]
+    return r, [u_n, u_i], path_ids
 
-def get_change_path(idnidx, path_len, to=1):
-        wps, [u_n, u_i] = get_straight_path(idnidx, path_len, '')
+def get_merged_point(idnidx, path_len, to=1):
+        wps, [u_n, u_i],_ = get_straight_path(idnidx, path_len, '')
         c_pt = wps[-1]
         l_id, r_id = get_neighbor( u_n)
         n_id = l_id if to == 1 else r_id
-
         if n_id != None:
             r = lanelets[n_id]['waypoints']
             u_n = n_id
             u_i = find_nearest_idx(r, c_pt)
-        else:
-            r = wps
-        return r, [u_n, u_i]
+
+        return [u_n, u_i]
     
 
 def get_possible_successor(node, prior='Left'):
@@ -110,7 +115,10 @@ def get_possible_successor(node, prior='Left'):
 
         successor = most_successor
     else:
-        i = len(lanelets[node]['successor'])-1
+        if prior == 'Left':
+            i = 0
+        else:
+            i = -1
         successor = lanelets[node]['successor'][i]
 
     return successor
@@ -193,11 +201,12 @@ def filter_same_points(points):
     return filtered_points
 
 
-
-
-
 def PreRound1Viz(waypoints):
     return Path(waypoints, 999, 0.2, 1.5, (255/255,79/255, 66/255, 0.5))
+
+def PreRound2Viz(waypoints):
+    return Path(waypoints, 999, 0.2, 1.5, (150/255,59/255, 255/255, 0.5))
+
 
 def Path(waypoints, id_, z, scale, color):
     marker = Line('path', int(id_), scale, color, len(waypoints))
@@ -212,7 +221,6 @@ def Line(ns, id_, scale, color, len):
     marker.header.frame_id = 'world'
     marker.ns = ns
     marker.id = id_
-    marker.text = str(len)
     marker.lifetime = rospy.Duration(0)
     marker.scale.x = scale
     marker.color.r = color[0]
