@@ -23,27 +23,34 @@ gput.cut_dist = cut_dist-1
 start_pose = [0,0]
 final_path = []
 final_ids = []
+final_lnums = []
 
 for i in range(1,6):
     start_ll = gput.lanelet_matching(start_pose)
-    r1, idnidx1, ids1 = gput.get_straight_path(start_ll, 200, '84', 'Right')
-    r2, idnidx2, ids2 = gput.get_straight_path(idnidx1, 3500, '21', 'Right') #'Right' means choose 104 node before joker lap
+    r1, idnidx1, ids1, lnums1 = gput.get_straight_path(start_ll, 200, '84', 'Right')
+    r2, idnidx2, ids2, lnums2 = gput.get_straight_path(idnidx1, 3500, '21', 'Right') #'Right' means choose 104 node before joker lap
     lap_path = r1+r2
     lap_ids = ids1+ids2
+    lap_lnums = lnums1+lnums2
     start_pose = r2[-1] 
     if i == 5:
         idnidx3 = gput.get_merged_point(idnidx2, diag_len-50, 2)
-        r3, _, ids3 = gput.get_straight_path(idnidx3, 30, '27')
+        r3, _, ids3, lnums3 = gput.get_straight_path(idnidx3, 30, '27')
         lap_path = lap_path+r3
         lap_ids = lap_ids+ids3
+        lap_lnums = lap_lnums+lnums3
+
 
     final_path.extend(lap_path)
     final_ids.extend(lap_ids)
+    final_lnums.extend(lap_lnums)
 
 save_.to_csv('./PreRound1.csv', final_path)
 save_.to_txt('./PreRound1_id.txt', final_ids)
-pr1_path = gput.smooth_interpolate(final_path, precision)
-pr1_path_viz = gput.PreRound1Viz(pr1_path)
+print(lap_lnums)
+
+#pr1_path = gput.smooth_interpolate(final_path, precision)
+pr1_path_viz = gput.PreRound1Viz(final_path)
 
 rate = rospy.Rate(5)
 while not rospy.is_shutdown():

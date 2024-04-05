@@ -8,7 +8,7 @@ import save_
 rospy.init_node('PreRound2', anonymous=False)
 pub_pr2_path = rospy.Publisher('/pr2_path', Marker, queue_size=1)
 
-start_index = 1 # 0 : lane 2, 1 : lane 4
+start_index = 0 # 0 : lane 2, 1 : lane 4
 tile_size = 5
 cut_dist = 15
 precision = 0.5
@@ -63,8 +63,8 @@ for i in range(3,6):
     final_path = final_path+lap_path
     final_ids = final_ids+lap_id
 
-save_.to_csv('./PreRound2b.csv', final_path)
-save_.to_txt('./PreRound2b_id.txt', final_ids)
+save_.to_csv('./PreRound2a.csv', final_path)
+save_.to_txt('./PreRound2a_id.txt', final_ids)
 
 pr2_path = gput.smooth_interpolate(final_path, precision)
 pr2_path_viz = gput.PreRound2Viz(pr2_path)

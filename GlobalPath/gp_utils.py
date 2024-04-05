@@ -56,7 +56,9 @@ def get_straight_path(idnidx, path_len, stop_id, prior='Left'):
     s_n = idnidx[0]
     s_i = idnidx[1]
     wps = copy.deepcopy(lanelets[s_n]['waypoints'])
+    lnum = lanelets[s_n]['laneNo']
     lls_len = len(wps)
+    lnums = [lnum]*lls_len
     
     u_n = s_n
     u_i = s_i+int(path_len*M_TO_IDX)
@@ -76,17 +78,20 @@ def get_straight_path(idnidx, path_len, stop_id, prior='Left'):
         u_i -= lls_len
         e_i += u_i
         u_wp = lanelets[u_n]['waypoints']
+        u_lnum = lanelets[u_n]['laneNo']
         lls_len = len(u_wp)
+        lnums.extend([u_lnum]*lls_len)
+
         for i in range(lls_len):
             if i % int(cut_dist*M_TO_IDX) == 0:
                 micro_id = i //int(cut_dist*M_TO_IDX)
                 path_ids.append(f"{u_n}_{micro_id}")
         wps += u_wp
     r = wps[s_i:e_i]
-    return r, [u_n, u_i], path_ids
+    return r, [u_n, u_i], path_ids, lnums
 
 def get_merged_point(idnidx, path_len, to=1):
-        wps, [u_n, u_i],_ = get_straight_path(idnidx, path_len, '')
+        wps, [u_n, u_i],_, _ = get_straight_path(idnidx, path_len, '')
         c_pt = wps[-1]
         l_id, r_id = get_neighbor( u_n)
         n_id = l_id if to == 1 else r_id
