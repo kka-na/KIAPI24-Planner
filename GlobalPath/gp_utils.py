@@ -211,8 +211,8 @@ def filter_same_points(points):
 
 def calc_norm_vec(points):
     theta = atan2(points[1][1]-points[0][1], points[1][0]-points[0][0])
-    A = -sin(theta)
-    B = cos(theta)
+    A = sin(theta)
+    B = -cos(theta)
     return A,B,theta
 
 def calc_kappa(epoints, npoints):
