@@ -1,1 +1,0 @@
-# KIAPI24-Planner
