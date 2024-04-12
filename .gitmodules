@@ -1,0 +1,3 @@
+[submodule "TUMLocalPath"]
+	path = TUMLocalPath
+	url = git@github.com:kka-na/TUMLocalPath.git
