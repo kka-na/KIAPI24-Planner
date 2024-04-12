@@ -18,9 +18,7 @@ class MicroLaneletGraph:
 
             if self.lanelets[group[0]]['length'] > self.lanelets[group[-1]]['length']:
                 group.reverse()
-
             idx_num = self.lanelets[group[0]]['idx_num']
-
             cut_num = idx_num // cut_idx
             if idx_num % cut_idx != 0:
                 cut_num += 1

@@ -182,15 +182,6 @@ class NGII2LANELET:
             lanelets[new_id]['leftType'] = []
             lanelets[new_id]['rightBound'] = []
             lanelets[new_id]['rightType'] = []
-            
-
-            if ori_id == 'A219AR140254':
-                print(new_id)
-                print(a2_link.ToNodeID, a2_link.FromNodeID)
-
-            if ori_id == 'A219AR140244':
-                print(new_id)
-                print(a2_link.ToNodeID, a2_link.FromNodeID)
 
 
             if to_node.get(a2_link.ToNodeID) is None:
@@ -223,22 +214,8 @@ class NGII2LANELET:
             if a2_link.Length == 0:
                 continue
 
-            
-
             ori_id = a2_link.ID
             new_id = ori2new[ori_id]
-
-            if ori_id == 'A219AR140244':
-                print(new_id)
-                print(a2_link.ToNodeID, a2_link.FromNodeID)
-                to_node[a2_link.FromNodeID] 
-                from_node[a2_link.ToNodeID]
-
-            if ori_id == 'A219AR140254':
-                print(new_id)
-                print(a2_link.ToNodeID, a2_link.FromNodeID)
-                to_node[a2_link.FromNodeID] 
-                from_node[a2_link.ToNodeID]
 
             lanelets[new_id]['adjacentLeft'] = ori2new.get(a2_link.L_LinkID)
             lanelets[new_id]['adjacentRight'] = ori2new.get(a2_link.R_LinkID)
