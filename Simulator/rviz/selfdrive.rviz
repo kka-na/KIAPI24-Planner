@@ -4,7 +4,7 @@ Panels:
     Name: Displays
     Property Tree Widget:
       Expanded: ~
-      Splitter Ratio: 0.5
+      Splitter Ratio: 0.3109619617462158
     Tree Height: 822
   - Class: rviz/Views
     Expanded:
@@ -311,18 +311,22 @@ Visualization Manager:
       Value: true
     - Class: rviz/Marker
       Enabled: true
-      Marker Topic: /ltpl/local_path
+      Marker Topic: /selfdrive/local_path
       Name: Local Path
       Namespaces:
         local_path: true
       Queue Size: 100
       Value: true
-    - Class: rviz/Marker
+    - Class: rviz/MarkerArray
       Enabled: true
-      Marker Topic: /selfdrive/local_path
-      Name: Marker
+      Marker Topic: /simulator/obstacle
+      Name: Obstacles
       Namespaces:
-        {}
+        obj0: true
+        obj1: true
+        obj2: true
+        obj3: true
+        obj4: true
       Queue Size: 100
       Value: true
   Enabled: true
@@ -353,7 +357,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/ThirdPersonFollower
-      Distance: 98.05545806884766
+      Distance: 137.79527282714844
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -369,9 +373,9 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.8047971129417419
+      Pitch: 0.4897973835468292
       Target Frame: ego_car
-      Yaw: 2.960400104522705
+      Yaw: 3.260406494140625
     Saved: ~
 Window Geometry:
   Displays:

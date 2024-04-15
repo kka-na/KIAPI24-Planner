@@ -14,6 +14,26 @@ from libs.vehicle import Vehicle
 def signal_handler(sig, frame):
     sys.exit(0)
 
+def Sphere(ns, id_, data, scale, color):
+    marker = Marker()
+    marker.type = Marker.SPHERE
+    marker.action = Marker.ADD
+    marker.header.frame_id = 'world'
+    marker.ns = ns
+    marker.id = id_
+    marker.lifetime = rospy.Duration(0)
+    marker.scale.x = scale
+    marker.scale.y = scale
+    marker.scale.z = scale
+    marker.color.r = color[0]/255
+    marker.color.g = color[1]/255
+    marker.color.b = color[2]/255
+    marker.color.a = 0.9
+    marker.pose.position.x = data[0]
+    marker.pose.position.y = data[1]
+    marker.pose.position.z = 0
+    return marker
+
 class HLVSimulator:
     def __init__(self):
         wheelbase = 2.97
@@ -36,6 +56,7 @@ class HLVSimulator:
         self.pub_ego_car_info = rospy.Publisher('/car/ego_car_info', Marker, queue_size=1)
         self.pub_pose = rospy.Publisher('/car/pose', Pose, queue_size=1)
         self.pub_mode = rospy.Publisher('/car/mode', Int8, queue_size=1)
+        self.pub_fake_obstacles = rospy.Publisher('/simulator/obstacle', MarkerArray, queue_size=1)
         rospy.Subscriber('/selfdrive/actuator', Vector3, self.actuator_cb)
         rospy.Subscriber('/mode', Int8, self.mode_cb)
         rospy.Subscriber('/initialpose', PoseWithCovarianceStamped, self.init_pose_cb)
@@ -54,9 +75,18 @@ class HLVSimulator:
         self._steer = math.radians(msg.x)
         self._accel = msg.y
         self._brake = msg.z
+   
     
     def mode_cb(self, msg):
         self.mode = msg.data
+
+     
+    def pub_obstacles(self):
+        obj_list = [(-146.977, 220.238), (-293.271, 380.288), (-539.258, 659.329), (-359.330, 463.394), (-247.289, 340.765)]
+        marker_array = MarkerArray()
+        for i, obj in enumerate(obj_list):
+            marker_array.markers.append(Sphere(f'obj{i}', i, obj, 5.0, (0,0,255)))
+        self.pub_fake_obstacles.publish(marker_array)
 
     def run(self):
         rate = rospy.Rate(10)
@@ -92,6 +122,7 @@ class HLVSimulator:
             self.pub_ego_car.publish(self.ego_car)
             self.pub_ego_car_info.publish(self.ego_car_info)
             self.pub_mode.publish(Int8(self.mode))
+            self.pub_obstacles()
             rate.sleep()
 
 def main():
