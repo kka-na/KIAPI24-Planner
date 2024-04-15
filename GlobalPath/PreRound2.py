@@ -60,7 +60,7 @@ else:
 
 for i in range(3,6):
     start_ll = gput.lanelet_matching(start_pose)
-    r1, idnidx1, ids1 = gput.get_straight_path(start_ll, 400, '84', 'Right')
+    r1, idnidx1, ids1 = gput.get_straight_path(start_ll, 400, '64', 'Right')
     r2, idnidx2, ids2= gput.get_straight_path(idnidx1, 7000, '21', 'Right')
     lap_path = r1+r2
     lap_id = ids1+ids2
