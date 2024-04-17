@@ -29,7 +29,7 @@ class AdaptiveCruiseControl:
         for point in path:
             distance_from_path = point.distance(goal)           
             if distance_from_path<=distance_threshold:
-                self.object_dist = goal.distance(path[0])-(self.vehicle_length*2)
+                self.object_dist = goal.distance(path[0])-(self.vehicle_length)
                 self.object_vel = 0
 
     def calculate_curvature(self, local_kappa):

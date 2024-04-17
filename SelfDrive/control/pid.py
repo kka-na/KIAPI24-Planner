@@ -56,6 +56,12 @@ class PID:
         self.previous_error = error
         return output
 
+    def safe_div(self, a, b):
+        if b == 0:
+            return 0
+        else:
+            return a/b
+
     def get_output(self, target_value, current_value):
         # update
         for i in range(3):
@@ -74,19 +80,15 @@ class PID:
             self.ctrls[4] = self.Kp*self.errs[3]
         else:
             # ddK(k-1)
-            self.ddKp = (-self.lr) * (-self.errs[2]) * ((self.outs[1] - self.outs[0]) / (self.ctrls[1] - self.ctrls[0])) * \
-                        (self.errs[2] - self.errs[1])
-            self.ddKi = (-self.lr) * (-self.errs[2]) * ((self.outs[1] - self.outs[0]) / (self.ctrls[1] - self.ctrls[0])) * \
-                        (self.errs[2])
-            self.ddKd = (-self.lr) * (-self.errs[2]) * ((self.outs[1] - self.outs[0]) / (self.ctrls[1] - self.ctrls[0])) * \
-                        (self.errs[2] - 2*self.errs[1] + self.errs[0])
+            ddk_err = self.safe_div((self.outs[1] - self.outs[0]), (self.ctrls[1] - self.ctrls[0]))
+            self.ddKp = (-self.lr) * (-self.errs[2]) * ddk_err * (self.errs[2] - self.errs[1])
+            self.ddKi = (-self.lr) * (-self.errs[2]) * ddk_err * (self.errs[2])
+            self.ddKd = (-self.lr) * (-self.errs[2]) * ddk_err * (self.errs[2] - 2*self.errs[1] + self.errs[0])
             # dK(k)
-            self.dKp = (-self.lr) * (-self.errs[3]) * ((self.outs[2] - self.outs[1]) / (self.ctrls[2] - self.ctrls[1])) * \
-                        (self.errs[3] - self.errs[2])
-            self.dKi = (-self.lr) * (-self.errs[3]) * ((self.outs[2] - self.outs[1]) / (self.ctrls[2] - self.ctrls[1])) * \
-                        (self.errs[3])
-            self.dKd = (-self.lr) * (-self.errs[3]) * ((self.outs[2] - self.outs[1]) / (self.ctrls[2] - self.ctrls[1])) * \
-                        (self.errs[3] - 2*self.errs[2] + self.errs[1])
+            dk_err = self.safe_div((self.outs[2] - self.outs[1]), (self.ctrls[2] - self.ctrls[1]))
+            self.dKp = (-self.lr) * (-self.errs[3]) * dk_err * (self.errs[3] - self.errs[2])
+            self.dKi = (-self.lr) * (-self.errs[3]) * dk_err * (self.errs[3])
+            self.dKd = (-self.lr) * (-self.errs[3]) * dk_err * (self.errs[3] - 2*self.errs[2] + self.errs[1])
             
 
             # K(k+1)
@@ -102,9 +104,6 @@ class PID:
             Kp = self.p_gain + f_dKp
             Ki = self.i_gain + f_dKi
             Kd = self.d_gain + f_dKd
-
-            #print("dP:{:4.2f} dI:{:4.2f} dD:{:4.2f}".format(self.dKp + self.ddKp, self.dKi + self.ddKi, self.Kd + self.dKd + self.ddKd))
-
             # control_amount
             delta_u_k = (Kp * (self.errs[3] - self.errs[2])) + \
                         (Ki * self.errs[3]) + \
@@ -115,7 +114,5 @@ class PID:
         if abs(self.errs[3]) > 10:
             self.ctrls[4] = self.p_gain*self.errs[3]
 
-        #print("P:{:4.2f} I:{:4.2f} D:{:4.2f}".format(Kp, Ki, Kd))
-        #print("control_amount :", self.ctrls[4])
         return self.ctrls[4]
     
