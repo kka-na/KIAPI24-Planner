@@ -33,6 +33,7 @@ graph = mlg.graph
 gput.lanelets = mlg.lanelets
 gput.tiles = tmap.tiles
 gput.tile_size = tile_size
+gput.lane_width = lane_width
 start_pose = [0,0]
 final_path = []
 final_ids = []
@@ -65,12 +66,13 @@ s = 0
 
 for i,f in enumerate(final_path):
     before_after_pts = [copy_final_path[i], copy_final_path[i+2]]
+    lw_left, lw_right = gput.get_lane_width(final_ids[i])
     A, B, theta = gput.calc_norm_vec(before_after_pts)
     Rk = gput.calc_kappa(f, before_after_pts)
     closest_index = np.argmin(np.abs(dist_p-s))
     vx = vel_p[closest_index]
     ax = accel_p[closest_index]
-    final_tr.append([f[0], f[1], lane_width/2, lane_width/2, A, B, 0, s, theta, Rk, vx, ax])
+    final_tr.append([f[0], f[1], lane_width/2, lw_left, A, B, 0, s, theta, Rk, vx, ax])
     s += 1
 
 save_.to_csv('./PreRound1.csv', final_tr)
