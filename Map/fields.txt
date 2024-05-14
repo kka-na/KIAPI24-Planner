@@ -1,0 +1,20 @@
+A2_LINK MultilineStringZ
+Length Real
+ID String
+geometry.coords
+LaneNo Integer
+ToNodeID String
+FromNodeID String
+LinkType String
+MaxSpeed
+R_LinkID String
+L_LinkID String
+
+
+B2_SURFACELINEMARK MultilineStringZ
+ID String
+Kind String
+geometry.coords
+R_LinkID String
+L_LinkID String
+Type String

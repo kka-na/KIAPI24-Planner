@@ -7,7 +7,6 @@ A_CRUISE_MIN = 10
 
 class Actuator:
     def __init__(self, acc, steer, v):
-        print(acc)
         if acc > 0:
             self.accel = self.get_actual_accel(acc*100, v)
             self.brake = 0.

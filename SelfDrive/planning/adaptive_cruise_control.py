@@ -23,6 +23,14 @@ class AdaptiveCruiseControl:
 
         self.dangerous = 0
     
+    def calc_error(self, path, vehicle_position):
+        min_dist = 1000
+        for point in path:
+            dist = vehicle_position.distance(point)
+            if dist < min_dist:
+                min_dist = dist
+        return min_dist
+    
     def check_objects(self, path):
         goal = path[-1]
         distance_threshold = 0

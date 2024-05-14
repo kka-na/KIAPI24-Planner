@@ -5,7 +5,7 @@ from micro_lanelet_graph import MicroLaneletGraph
 
 rospy.init_node('Map', anonymous=False)
 
-lmap = LaneletMap('../KIAPI_Racing.json')
+lmap = LaneletMap('./Pangyo.json')
 graph = MicroLaneletGraph(lmap, 15).graph
 lmap_viz = LaneletMapViz(lmap.lanelets, lmap.for_viz)
 mlmap_viz = MicroLaneletGraphViz(lmap.lanelets, graph)

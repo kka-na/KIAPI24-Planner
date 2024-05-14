@@ -135,11 +135,6 @@ class NGII2LANELET:
 
         stoplines = {}
         safetysigns = {}
-        surfacemarks = {}
-        trafficlights = {}
-        vehicleprotectionsafetys = {}
-        speedbumps = {}
-        postpoints = {}
 
         for n, a2_link in tqdm(enumerate(ngii.a2_link), desc="a2_link: ", total=len(ngii.a2_link)):
             if a2_link.Length == 0:
@@ -147,8 +142,6 @@ class NGII2LANELET:
 
             new_id = str(n)
             ori_id = a2_link.ID
-            print(ori_id, new_id)
-
             ori2new[ori_id] = new_id
             self.new2ori[new_id] = ori_id
 
@@ -167,7 +160,7 @@ class NGII2LANELET:
             lanelets[new_id]['yaw'] = yaw
             lanelets[new_id]['s'] = s
             lanelets[new_id]['k'] = k
-            lanelets[new_id]['length'] = s[-1]  # a2_link.Length
+            lanelets[new_id]['length'] = s[-1]  # a2_link.length
             lanelets[new_id]['laneNo'] = a2_link.LaneNo
             
             lanelets[new_id]['leftTurn'] = False
@@ -205,7 +198,7 @@ class NGII2LANELET:
             else:
                 lanelets[new_id]['leftTurn'] = False
 
-            if int(a2_link.MaxSpeed) is None or int(a2_link.MaxSpeed) == 0.0:
+            if a2_link.MaxSpeed is None or int(a2_link.MaxSpeed) == 0.0:
                 lanelets[new_id]['speedLimit'] = 50
             else:
                 lanelets[new_id]['speedLimit'] = int(a2_link.MaxSpeed)
@@ -216,7 +209,6 @@ class NGII2LANELET:
 
             ori_id = a2_link.ID
             new_id = ori2new[ori_id]
-
             lanelets[new_id]['adjacentLeft'] = ori2new.get(a2_link.L_LinkID)
             lanelets[new_id]['adjacentRight'] = ori2new.get(a2_link.R_LinkID)
 
@@ -224,10 +216,9 @@ class NGII2LANELET:
             lanelets[new_id]['successor'] = from_node[a2_link.ToNodeID] if from_node.get(a2_link.ToNodeID) is not None else []
 
 
-            
-        # Correct map error
         for id_, data in lanelets.items():
             left_id = data['adjacentLeft']
+            
             if left_id is not None:
                 left_data = lanelets[left_id]
                 if left_data['adjacentRight'] != id_:
@@ -269,51 +260,6 @@ class NGII2LANELET:
                 else:
                     data['group'] = None
         
-        for a2_link in tqdm(ngii.a2_link, desc="link2stopline_id_matching: ", total=len(ngii.a2_link)):
-            def extend_line(coordinates, extension_meters=3):
-                """
-                주어진 좌표 리스트의 시작점과 끝점을 주어진 미터 단위로 늘린다.
-                """
-                # 좌표가 최소 두 개 이상 필요
-                if len(coordinates) < 2:
-                    raise ValueError("좌표는 최소 두 개 이상 필요합니다.")
-
-                # 시작점 처리
-                start_first = coordinates[0]
-                start_second = coordinates[1]
-                start_bearing = math.atan2(start_second[1] - start_first[1], start_second[0] - start_first[0])
-                new_start = [start_first[0] - extension_meters * math.cos(start_bearing),
-                            start_first[1] - extension_meters * math.sin(start_bearing)]
-
-                # 끝점 처리
-                end_first = coordinates[-2]
-                end_second = coordinates[-1]
-                end_bearing = math.atan2(end_second[1] - end_first[1], end_second[0] - end_first[0])
-                new_end = [end_second[0] + extension_meters * math.cos(end_bearing),
-                        end_second[1] + extension_meters * math.sin(end_bearing)]
-
-                # 새로운 좌표 리스트 생성
-                new_coordinates = [new_start] + coordinates + [new_end]
-
-                return new_coordinates
-
-            if a2_link.Length == 0:
-                continue
-
-            ori_id = a2_link.ID
-            new_id = ori2new[ori_id]
-            extended_link = extend_line(lanelets[new_id]['waypoints'])
-            link = LineString(extended_link)
-            for b2_surfacelinemark in ngii.b2_surfacelinemark:
-                stopline = []
-                if b2_surfacelinemark.Kind == '530':
-                    for tx, ty, alt in b2_surfacelinemark.geometry.coords:
-                        x, y, z = self.to_cartesian(tx, ty, alt)
-                        stopline.append((x, y))
-                    stopline = LineString(stopline)
-                    intersects = link.intersects(stopline)
-                    if intersects:
-                        lanelets[new_id]['stoplineID'].append(b2_surfacelinemark.ID)
 
         for b2_surfacelinemark in tqdm(ngii.b2_surfacelinemark, desc="b2_surfacelinemark: ", total=len(ngii.b2_surfacelinemark)):
             if b2_surfacelinemark.Kind is not None:

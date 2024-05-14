@@ -15,6 +15,9 @@ class SelfDrive:
         self.pid = PID(sampling_time = 1/float(config['common']['sampling_rate']), **config['control']['pid'])
         self.pure_pursuit = PurePursuit(wheelbase=config['common']['wheelbase'], steer_ratio=config['common']['steer_ratio'],steer_max=config['common']['steer_max'], **config['control']['pure_pursuit'])
         self.base_lla = config['map']['base_lla']
+        self.min_error = 9999999999 
+        self.max_error = 0
+        self.error_mean = 0
 
     def pid_test(self, pid_gain):
         self.pid.change_gains(pid_gain[0], pid_gain[1], pid_gain[2])
@@ -23,6 +26,15 @@ class SelfDrive:
         if mode == 0:
             return Actuator(-100, vehicle_state.heading, vehicle_state.velocity), 0
         
+        error = self.acc.calc_error(local_path, vehicle_state.position)
+        
+        if error < self.min_error:
+            self.min_error = error
+        elif error > self.max_error:
+            self.max_error = error
+            
+        self.error_mean = (self.error_mean + error)/2
+        print(self.min_error, self.max_error, self.error_mean)
         self.acc.check_objects(local_path)
         _, co = self.acc.calculate_curvature(local_kappa)
         target_velocity = self.acc.get_target_velocity(vehicle_state.velocity, local_vel[0], co)

@@ -90,6 +90,7 @@ def MicroLaneletGraphViz(lanelet, graph):
                     to_idx = sum(lanelet[target_id]['cut_idx'][cut_n]) // 2
                     pts = [from_pts[from_idx], to_pts[to_idx]]
 
+                
                 marker1, marker2 = Edge(n*100000+m, pts, (0.0, 1.0, 0.0, 0.3))
                 array.markers.append(marker1)
                 array.markers.append(marker2)
@@ -115,6 +116,7 @@ def Node(id_, n, pt, color):
     return marker
 
 def Edge(n, points, color):
+
     if len(points) == 2:
         wx, wy = zip(*points)
         itp = QuadraticSplineInterpolate(list(wx), list(wy))
@@ -122,6 +124,7 @@ def Edge(n, points, color):
         for ds in np.arange(0.0, itp.s[-1], 0.5):
             pts.append(itp.calc_position(ds))
         points = pts
+
 
     marker1 = Line('edge_line', n, 0.2, color, 0)
     for pt in points:
